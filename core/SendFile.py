@@ -1,6 +1,8 @@
 import os
 
-async def Send(client, target: str, file_path: str):
+async def Send(client, target, file_path):
     if os.path.exists(file_path):
-        await client.send_file(target, file_path)
-        print(f"File send!")
+        message = await client.send_file(target, file_path)
+        
+        print("File send!")
+        print(message.id)
