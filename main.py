@@ -3,8 +3,8 @@ import asyncio
 from telethon import TelegramClient
 from dotenv import load_dotenv
 
-from core.SendFile import Send
-from core.GetFile import Get
+from core.SendFile import Send, Split
+from core.GetFile import Get, Merge
 
 load_dotenv()
 
@@ -22,8 +22,11 @@ async def main():
 
             if user == "send":
                 file_path = input("Enter path to file: ").strip()
-                await Send(client, "me", file_path)
-
+                if os.path.exists(file_path):
+                    chunks = await Split(file_path)
+                    for chunk in chunks: 
+                        await Send(client, "me", chunk)
+                    
             elif user == "get":
                 msg_id_input = input("Enter message ID: ").strip()
                 if msg_id_input.isdigit():
