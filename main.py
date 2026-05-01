@@ -5,17 +5,21 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-api_id = os.getenv('API_ID')
-api_hash = os.getenv('API_HASH')
-session_name = 'test'
-
+apiId = os.getenv('API_ID')
+apiHash = os.getenv('API_HASH')
+sessionName = 'test'
 async def main():
-    async with TelegramClient(session_name, api_id, api_hash) as client:
+    async with TelegramClient(sessionName, apiId, apiHash) as client:
+        print("enter path to file")
         while True:
-            message = input(">> ")
-            if message.lower() == 'exit':
+            filePath = input("> ").strip()
+            if filePath.lower() == "exit":
                 break
-            await client.send_message('me', message)
-
+            if os.path.exists(filePath):
+                await client.send_file("me", filePath)
+            else:
+                await client.send_message("me", filePath)
 if __name__ == '__main__':
     asyncio.run(main())
+
+
