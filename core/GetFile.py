@@ -8,23 +8,17 @@ async def Get(client, target: str, message_id: int):
             print(f"Starting download...")
             path = await client.download_media(message)
             print(f"File saved successfully")
+            return path
         else:
             print(f"No media found in message ID")
             
     except Exception as e:
         print(f"Error: {e}")
 
-async def Merge(chunk_list, file_name):
+def Merge(chunk_list, file_name):
     with open(file_name, "wb") as f_final:
         for chunk_name in chunk_list:
             with open(chunk_name, "rb") as p:
                 f_final.write(p.read())
-                os.remove(chunk_name)
-
-# def connectFile(partList, output_name):
-#     with open(output_name, "wb") as f_final:
-#         for partName in partList:
-#             with open(partName, "rb") as p:
-#                 f_final.write(p.read())
-#                 os.remove(partName)
-    
+            os.remove(chunk_name)
+    print(f"Merge done")

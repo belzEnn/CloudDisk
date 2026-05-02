@@ -29,8 +29,18 @@ async def main():
                     
             elif user == "get":
                 msg_id_input = input("Enter message ID: ").strip()
-                if msg_id_input.isdigit():
-                    await Get(client, "me", int(msg_id_input))
-
+                
+                ids = [int(i.strip()) for i in msg_id_input.split(" ") if i.strip().isdigit()]
+                output_name = input("Enter output filename: ").strip()
+                
+                chunks = []
+                # download each part sequentially
+                for msg_id in ids:
+                    path = await Get(client, "me", int(msg_id))
+                    if path:
+                        chunks.append(path)
+                
+                if chunks:
+                    Merge(chunks, output_name)
 if __name__ == '__main__':
     asyncio.run(main())
