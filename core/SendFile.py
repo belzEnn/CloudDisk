@@ -1,11 +1,13 @@
 import os
+from database.models import FileBase
 #Send file func
 async def Send(client, target, file_path):
     if os.path.exists(file_path):
-
         message = await client.send_file(target, file_path)
         print("File send!")
         print(message.id)
+        return message
+        
         
 
 #Split files to chunks function
