@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head><title>DDDrive</title></head>
+<link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+<body>
+    <h2>{{ username }}</h2>
+    <a href="/">Log out</a>
+    <hr>
+
+    <h3>Upload new file</h3>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" required>
+        <input type="hidden" name="username" value="{{ username }}">
+        <button type="submit">Upload</button>
+    </form>
+
+    <hr>
+
+    <h3>Your files</h3>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>File name</th>
+            <th>Chunks</th>
+            <th>Action</th>
+        </tr>
+        {% for file in files %}
+        <tr>
+            <td>{{ file.id }}</td>
+            <td>{{ file.file_name }}</td>
+            <td>{{ file.chunk_amount }}</td>
+            <td>
+                <form action="/download" method="post">
+                    <input type="hidden" name="file_id" value="{{ file.id }}">
+                    <button type="submit">download</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
