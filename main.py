@@ -4,15 +4,14 @@ from telethon import TelegramClient
 from dotenv import load_dotenv
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request, Form, UploadFile, File, BackgroundTasks
+from fastapi import FastAPI, Request, Form, UploadFile, File, BackgroundTasks, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
 from core.SendFile import Send, Split
 from core.GetFile import Get, Merge
-from database.models import UserBase, FileBase
-from database.Database import create_db_and_tables, Session, add_user_to_db, add_file_to_db, get_user_files, get_file_by_id
+from database.Database import create_db_and_tables, add_user_to_db, add_file_to_db, get_user_files, get_file_by_id, delete_file
 
 load_dotenv()
 
@@ -32,6 +31,7 @@ async def start(app: FastAPI):
 
 app = FastAPI(lifespan=start)
 app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/assets", StaticFiles(directory="assets"), name="assets")
 templates = Jinja2Templates(directory="templates")
 
 @app.get("/", response_class=HTMLResponse)
@@ -105,6 +105,22 @@ async def download_file(file_id: int = Form(...)):
         background=BackgroundTasks().add_task(os.remove, output_name)
     )
 
+@app.post("/delete")
+async def delete_file_endpoint(file_id: int = Form(...)):
+    # Get file id
+    db_file = await get_file_by_id(file_id)
+    # If file none in DB
+    if not db_file:
+        raise HTTPException(status_code=404, detail="File not found")
+
+    try:
+        await client.delete_messages("me", db_file.id_chunk_list) # Delete message
+        await delete_file(file_id)
+        return RedirectResponse(url="/", status_code=303)
+        
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail="Error deleting from the server")
 
 if __name__ == '__main__':
     import uvicorn
