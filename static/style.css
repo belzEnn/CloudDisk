@@ -5,192 +5,154 @@ body {
     font-family: "Montserrat", sans-serif;
     background-color: #f8f9fa;
     color: #333;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Топбар */
 .topbar {
     background-color: #ffffff;
     height: 60px;
+    min-height: 60px;
     width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 40px;
+    padding: 0 30px;
     box-sizing: border-box;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    z-index: 10;
 }
 
 .logo { margin: 0; font-size: 1.2rem; color: #2d3436; }
 
-.user-section { display: flex; align-items: center; gap: 20px; }
-
-.username { font-weight: 600; font-size: 0.9rem; }
-
-.logout-link {
-    text-decoration: none;
-    color: #ff7675;
-    font-size: 0.85rem;
-    border: 1px solid #ff7675;
-    padding: 5px 12px;
-    border-radius: 6px;
-    transition: 0.3s;
+.main-layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
 }
 
-.logout-link:hover {
-    background: #ff7675;
-    color: white;
+.sidebar {
+    width: 240px;
+    background-color: #ffffff;
+    border-right: 1px solid #eee;
+    padding: 20px 10px;
+}
+
+.side-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.side-menu li {
+    padding: 12px 20px;
+    margin-bottom: 5px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #636e72;
+    transition: 0.2s;
+}
+
+.side-menu li.active {
+    background-color: #e3f2fd;
+    color: #0984e3;
+}
+
+.side-menu li:hover:not(.active) {
+    background-color: #f1f2f6;
 }
 
 /* Основний контент */
-.container {
-    max-width: 800px;
-    margin: 40px auto;
-    background: white;
+.content {
+    flex: 1;
     padding: 30px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.content-header h3 { margin: 0; font-size: 1.5rem; }
+
+.upload-zone {
+    background: white;
+    padding: 10px 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.upload-form { display: flex; gap: 15px; align-items: center; }
+
+.files-container {
+    background: white;
     border-radius: 12px;
+    padding: 20px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
 
-h3 { margin-top: 0; color: #2d3436; }
-
-hr { border: 0; border-top: 1px solid #eee; margin: 30px 0; }
-
-/* Форма завантаження */
-.upload-form {
-    display: flex;
-    gap: 10px;
-    align-items: center;
+.files-table { width: 100%; border-collapse: collapse; }
+.files-table th {
+    text-align: left;
+    padding: 12px;
+    border-bottom: 2px solid #f1f1f1;
+    color: #b2bec3;
+    font-size: 0.75rem;
+    text-transform: uppercase;
 }
-
-input[type="file"] {
-    font-size: 0.9rem;
-}
+.files-table td { padding: 15px 12px; border-bottom: 1px solid #f8f9fa; }
 
 .btn-primary {
     background-color: #0984e3;
     color: white;
     border: none;
-    padding: 8px 20px;
-    border-radius: 6px;
+    padding: 10px 20px;
+    border-radius: 8px;
     cursor: pointer;
     font-family: inherit;
     font-weight: 600;
 }
-
 .btn-primary:hover { background-color: #74b9ff; }
 
-/* Таблиця файлів */
-.files-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.files-table th {
-    text-align: left;
-    padding: 12px;
-    border-bottom: 2px solid #f1f1f1;
-    color: #636e72;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-}
-
-.files-table td {
-    padding: 15px 12px;
-    border-bottom: 1px solid #f1f1f1;
-}
-
-.download-button {
+.download-button, .delete-button {
     background: none;
-    border: 1px solid #dfe6e9;
-    padding: 6px;
-    border-radius: 6px;
+    border: 1px solid #f1f1f1;
+    padding: 8px;
+    border-radius: 8px;
     cursor: pointer;
     transition: 0.2s;
-    line-height: 0;
 }
 
-.download-button:hover {
-    background-color: #f1f2f6;
-    border-color: #b2bec3;
-}
-
-.delete-button {
-    background: none;
-    border: 1px solid #dfe6e9;
-    padding: 6px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: 0.2s;
-    line-height: 0;
-    margin-left: 5px;
-}
-
-.delete-button:hover {
-    background-color: #fff1f0; /* Легкий красный оттенок */
-    border-color: #ff7675;
-}
+.delete-button:hover { background-color: #fff1f0; border-color: #ff7675; }
+.download-button:hover { background-color: #f1f2f6; }
 
 .modal-overlay {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.2); /* Легкая полупрозрачность */
+    background: rgba(0, 0, 0, 0.3);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
 }
-
 .modal-content {
     background: white;
     padding: 30px;
-    border-radius: 12px;
-    width: 350px;
+    border-radius: 15px;
+    width: 380px;
     text-align: center;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1); /* Тень как у твоего контейнера */
-    font-family: "Montserrat", sans-serif;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
 }
-
-.modal-content h4 {
-    margin-top: 0;
-    color: #2d3436;
-    font-size: 1.2rem;
-}
-
-.modal-content p {
-    color: #636e72;
-    font-size: 0.9rem;
-    margin-bottom: 25px;
-}
-
-.modal-actions {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-}
-
-/* Кнопки в модалке */
-.btn-secondary { 
-    background: #f1f2f6; 
-    color: #2d3436; 
-    border: none; 
-    padding: 8px 20px; 
-    border-radius: 6px; 
-    cursor: pointer; 
-    font-weight: 600;
-}
-
-.btn-secondary:hover { background: #dfe6e9; }
-
-/* Используем твой цвет #ff7675 для удаления */
-.btn-danger { 
-    background: #ff7675; 
-    color: white; 
-    border: none; 
-    padding: 8px 20px; 
-    border-radius: 6px; 
-    cursor: pointer; 
-    font-weight: 600;
-}
-
-.btn-danger:hover { background: #fab1a0; }
+.modal-actions { display: flex; justify-content: center; gap: 15px; margin-top: 25px; }
+.btn-secondary { background: #f1f2f6; border: none; padding: 10px 25px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+.btn-danger { background: #ff7675; color: white; border: none; padding: 10px 25px; border-radius: 8px; cursor: pointer; font-weight: 600; }
