@@ -1,6 +1,7 @@
 .env
 img.png
 test.session
+storage.db
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

@@ -1,22 +1,41 @@
 <!DOCTYPE html>
-<html>
-<head><title>DDDisk</title></head>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>DDDisk — Welcome</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+</head>
 <body>
-    <h1>DDDisk</h1>
-<link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+    <!-- Невеликий топбар для назви сайту -->
+    <div class="topbar">
+        <h2 class="logo">DDDisk</h2>
+    </div>
 
-    <h3>Login</h3>
-    <form action="/login" method="post">
-        <input type="text" name="username" placeholder="Enter login" required>
-        <button type="submit">Login</button>
-    </form>
+    <div class="container auth-container">
+        <div class="auth-box">
+            <h1>Welcome back</h1>
+            <p class="subtitle">Please enter your details to continue</p>
+            
+            <section class="auth-section">
+                <h3>Login</h3>
+                <form action="/login" method="post" class="auth-form">
+                    <input type="text" name="username" placeholder="Username" required>
+                    <button type="submit" class="btn-primary">Sign In</button>
+                </form>
+            </section>
 
-    <hr>
+            <div class="divider">
+                <span>or</span>
+            </div>
 
-    <h3>Register</h3>
-    <form action="/register" method="post">
-        <input type="text" name="username" placeholder="Enter login" required>
-        <button type="submit">Register</button>
-    </form>
+            <section class="auth-section">
+                <h3>Create account</h3>
+                <form action="/register" method="post" class="auth-form">
+                    <input type="text" name="username" placeholder="Choose a username" required>
+                    <button type="submit" class="btn-secondary">Register</button>
+                </form>
+            </section>
+        </div>
+    </div>
 </body>
 </html>

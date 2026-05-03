@@ -1,42 +1,57 @@
 <!DOCTYPE html>
-<html>
-<head><title>DDDrive</title></head>
-<link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>DDDrive</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+</head>
 <body>
-    <h2>{{ username }}</h2>
-    <a href="/">Log out</a>
-    <hr>
+    <div class="topbar">
+        <h2 class="logo">DDDrive</h2>
+        <div class="user-section">
+            <span class="username">{{ username }}</span>
+            <a href="/" class="logout-link">Log out</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <section class="upload-section">
+            <h3>Upload new file</h3>
+            <form action="/upload" method="post" enctype="multipart/form-data" class="upload-form">
+                <input type="file" name="file" id="file" required>
+                <input type="hidden" name="username" value="{{ username }}">
+                <button type="submit" class="btn-primary">Upload</button>
+            </form>
+        </section>
 
-    <h3>Upload new file</h3>
-    <form action="/upload" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" required>
-        <input type="hidden" name="username" value="{{ username }}">
-        <button type="submit">Upload</button>
-    </form>
+        <hr>
 
-    <hr>
-
-    <h3>Your files</h3>
-    <table border="1">
-        <tr>
-            <th>ID</th>
-            <th>File name</th>
-            <th>Chunks</th>
-            <th>Action</th>
-        </tr>
-        {% for file in files %}
-        <tr>
-            <td>{{ file.id }}</td>
-            <td>{{ file.file_name }}</td>
-            <td>{{ file.chunk_amount }}</td>
-            <td>
-                <form action="/download" method="post">
-                    <input type="hidden" name="file_id" value="{{ file.id }}">
-                    <button type="submit">download</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+        <section class="files-section">
+            <h3>Your files</h3>
+            <table class="files-table">
+                <thead>
+                    <tr>
+                        <th>File name</th>
+                        <th style="text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for file in files %}
+                    <tr>
+                        <td>{{ file.file_name }}</td>
+                        <td style="text-align: right;">
+                            <form action="/download" method="post" style="display: inline;">
+                                <input type="hidden" name="file_id" value="{{ file.id }}">
+                                <button type="submit" class="download-button">
+                                    <img src="{{ url_for('static', path='assets/download.png') }}" width="20" height="20" alt="Download">
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </div>
 </body>
 </html>

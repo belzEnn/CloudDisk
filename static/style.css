@@ -1,5 +1,115 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+
 body {
-    display: grid;
-    place-items: center; 
     margin: 0;
+    font-family: "Montserrat", sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+/* Топбар */
+.topbar {
+    background-color: #ffffff;
+    height: 60px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+    box-sizing: border-box;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.logo { margin: 0; font-size: 1.2rem; color: #2d3436; }
+
+.user-section { display: flex; align-items: center; gap: 20px; }
+
+.username { font-weight: 600; font-size: 0.9rem; }
+
+.logout-link {
+    text-decoration: none;
+    color: #ff7675;
+    font-size: 0.85rem;
+    border: 1px solid #ff7675;
+    padding: 5px 12px;
+    border-radius: 6px;
+    transition: 0.3s;
+}
+
+.logout-link:hover {
+    background: #ff7675;
+    color: white;
+}
+
+/* Основний контент */
+.container {
+    max-width: 800px;
+    margin: 40px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+h3 { margin-top: 0; color: #2d3436; }
+
+hr { border: 0; border-top: 1px solid #eee; margin: 30px 0; }
+
+/* Форма завантаження */
+.upload-form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+input[type="file"] {
+    font-size: 0.9rem;
+}
+
+.btn-primary {
+    background-color: #0984e3;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+}
+
+.btn-primary:hover { background-color: #74b9ff; }
+
+/* Таблиця файлів */
+.files-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.files-table th {
+    text-align: left;
+    padding: 12px;
+    border-bottom: 2px solid #f1f1f1;
+    color: #636e72;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+}
+
+.files-table td {
+    padding: 15px 12px;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.download-button {
+    background: none;
+    border: 1px solid #dfe6e9;
+    padding: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+    line-height: 0;
+}
+
+.download-button:hover {
+    background-color: #f1f2f6;
+    border-color: #b2bec3;
 }
