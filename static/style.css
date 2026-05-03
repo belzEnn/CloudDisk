@@ -113,3 +113,84 @@ input[type="file"] {
     background-color: #f1f2f6;
     border-color: #b2bec3;
 }
+
+.delete-button {
+    background: none;
+    border: 1px solid #dfe6e9;
+    padding: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+    line-height: 0;
+    margin-left: 5px;
+}
+
+.delete-button:hover {
+    background-color: #fff1f0; /* Легкий красный оттенок */
+    border-color: #ff7675;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.2); /* Легкая полупрозрачность */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 350px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1); /* Тень как у твоего контейнера */
+    font-family: "Montserrat", sans-serif;
+}
+
+.modal-content h4 {
+    margin-top: 0;
+    color: #2d3436;
+    font-size: 1.2rem;
+}
+
+.modal-content p {
+    color: #636e72;
+    font-size: 0.9rem;
+    margin-bottom: 25px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+/* Кнопки в модалке */
+.btn-secondary { 
+    background: #f1f2f6; 
+    color: #2d3436; 
+    border: none; 
+    padding: 8px 20px; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    font-weight: 600;
+}
+
+.btn-secondary:hover { background: #dfe6e9; }
+
+/* Используем твой цвет #ff7675 для удаления */
+.btn-danger { 
+    background: #ff7675; 
+    color: white; 
+    border: none; 
+    padding: 8px 20px; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    font-weight: 600;
+}
+
+.btn-danger:hover { background: #fab1a0; }

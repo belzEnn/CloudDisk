@@ -4,6 +4,7 @@ import uuid
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from database.models import Base, FileBase, UserBase
+from sqlalchemy import delete
 
 db_url = "sqlite+aiosqlite:///storage.db"
 engine = create_async_engine(db_url, echo=True)
@@ -53,9 +54,15 @@ async def get_file_by_id(file_id: int):
         file_res = await session.execute(file_req)
         return file_res.scalars().first()
 
+async def delete_file(file_id: int):
+    async with Session() as session:
+        await session.execute(delete(FileBase).where(FileBase.id == file_id))
+        await session.commit()
+
 Session = async_sessionmaker(engine, expire_on_commit=False)
 async def main():
     await create_db_and_tables()
+
 if __name__ == "__main__":
     asyncio.run(main())
 
