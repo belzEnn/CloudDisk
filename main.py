@@ -112,7 +112,20 @@ async def upload_file(request: Request, file: UploadFile = File(...)):
     async with aiofiles.open(temp_path, "wb") as buffer:
         await buffer.write(await file.read())
 
-    chunks = await Split(temp_path)
+    file_size = os.path.getsize(temp_path)
+    MB = 1024**2
+    if file_size <= 10 * MB:
+        chunks_size = 1 * MB
+    elif file_size <= 50 * MB:
+        chunks_size = 2 * MB
+    elif file_size <= 100 * MB:
+        chunks_size = 5 * MB
+    elif file_size <= 1000 * MB:
+        chunks_size = 10 * MB
+    else:
+        chunks_size = 20 * MB
+
+    chunks = await Split(temp_path, chunks_size)
     tasks = [Send(client, "me", chunk) for chunk in chunks]
     
     messages = await asyncio.gather(*tasks)
