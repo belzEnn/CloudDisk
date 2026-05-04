@@ -20,5 +20,4 @@ class UserBase(Base):
     id:Mapped[int] = mapped_column(primary_key=True)
     user_name:Mapped[str] = mapped_column(nullable=False,unique=True)
     uuid:Mapped[str] = mapped_column(String(36),nullable=False)
-
-
+    password_hash: Mapped[str] = mapped_column(String(128), nullable=False)

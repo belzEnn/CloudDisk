@@ -1,5 +1,6 @@
 import asyncio
 import uuid
+import bcrypt
 # from sqlalchemy.orm import async_sessionmaker
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
@@ -15,13 +16,38 @@ async def create_db_and_tables():
         await conn.run_sync(Base.metadata.create_all)
 
 ### SEND (ADD)
-async def add_user_to_db(username: str):
+async def add_user_to_db(username: str, password: str):
     async with Session() as session:
         async with session.begin():
             user_uuid = str(uuid.uuid4())
-            new_user = UserBase(user_name = username, uuid=user_uuid)
+            pw_hash = hash_password(password)
+            
+            new_user = UserBase(
+                user_name=username, 
+                uuid=user_uuid, 
+                password_hash=pw_hash
+            )
             session.add(new_user)
 
+async def get_user_by_name(username: str):
+    async with Session() as session:
+        result = await session.execute(select(UserBase).where(UserBase.user_name == username))
+        return result.scalars().first()
+
+def hash_password(password: str) -> str:
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
+    return hashed.decode('utf-8')
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    try:
+        return bcrypt.checkpw(
+            plain_password.encode('utf-8'), 
+            hashed_password.encode('utf-8')
+        )
+    except Exception:
+        return False
+    
 async def add_file_to_db(username, file_name: str,messageid_chunk_list:list, chunk_size:int = 1*1024*1024):
     async with Session() as session:
         async with session.begin():
