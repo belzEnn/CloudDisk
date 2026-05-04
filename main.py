@@ -1,5 +1,6 @@
 import os
 import asyncio
+import aiofiles
 from telethon import TelegramClient
 from dotenv import load_dotenv
 from contextlib import asynccontextmanager
@@ -108,16 +109,18 @@ async def upload_file(request: Request, file: UploadFile = File(...)):
         raise HTTPException(status_code=401)
 
     temp_path = f"temp_{file.filename}"
-    with open(temp_path, "wb") as buffer:
-        buffer.write(await file.read())
+    async with aiofiles.open(temp_path, "wb") as buffer:
+        await buffer.write(await file.read())
 
     chunks = await Split(temp_path)
-    currentid_chunk_list = []
+    tasks = [Send(client, "me", chunk) for chunk in chunks]
+    
+    messages = await asyncio.gather(*tasks)
+    currentid_chunk_list = [msg.id for msg in messages]
     
     for chunk in chunks: 
-        message = await Send(client, "me", chunk)
-        currentid_chunk_list.append(message.id)
-        os.remove(chunk)
+        if os.path.exists(chunk):
+            os.remove(chunk)
 
     await add_file_to_db(username, file.filename, currentid_chunk_list)
     os.remove(temp_path)
