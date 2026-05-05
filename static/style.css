@@ -156,3 +156,25 @@ body {
 .modal-actions { display: flex; justify-content: center; gap: 15px; margin-top: 25px; }
 .btn-secondary { background: #f1f2f6; border: none; padding: 10px 25px; border-radius: 8px; cursor: pointer; font-weight: 600; }
 .btn-danger { background: #ff7675; color: white; border: none; padding: 10px 25px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+
+.global-drop-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.global-drop-overlay.active {
+    display: flex;
+}
+
+.overlay-content {
+    border: 2px dashed white;
+    padding: 40px;
+    border-radius: 12px;
+    color: white;
+    font-size: 20px;
+}

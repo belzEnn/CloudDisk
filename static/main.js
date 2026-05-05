@@ -1,3 +1,4 @@
+// Confirmation dialog box
 const modal = document.getElementById('custom-modal');
 let formToSubmit = null;
 
@@ -30,3 +31,42 @@ document.getElementById('modal-confirm').onclick = async () => {
     }
     closeModal();
 };
+
+
+// Drag and drop
+const overlay = document.getElementById("global-drop-overlay");
+const fileInput = document.getElementById("file");
+const uploadForm = document.getElementById("upload-form");
+
+let dragCounter = 0;
+
+document.addEventListener("dragenter", (e) => {
+    e.preventDefault();
+    dragCounter++;
+    overlay.classList.add("active");
+});
+
+document.addEventListener("dragover", (e) => {
+    e.preventDefault();
+});
+
+document.addEventListener("dragleave", () => {
+    dragCounter--;
+    if (dragCounter === 0) {
+        overlay.classList.remove("active");
+    }
+});
+
+document.addEventListener("drop", (e) => {
+    e.preventDefault();
+
+    overlay.classList.remove("active");
+    dragCounter = 0;
+
+    const files = e.dataTransfer.files;
+
+    if (files.length > 0) {
+        fileInput.files = files;
+        uploadForm.submit();
+    }
+});
