@@ -6,7 +6,7 @@ from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from database.models import Base, FileBase, UserBase
 from sqlalchemy import delete
-
+from pathlib import Path
 db_url = "sqlite+aiosqlite:///storage.db"
 engine = create_async_engine(db_url, echo=True)
 
@@ -48,15 +48,27 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     except Exception:
         return False
     
-async def add_file_to_db(username, file_name: str,messageid_chunk_list:list, chunk_size:int = 1*1024*1024):
+async def add_file_to_db(username, file_name: str,messageid_chunk_list:list, chunk_size:int = 1*1024**2):
     async with Session() as session:
         async with session.begin():
+            img_ext = [".img",".jpg",".jpeg",".png",".svg",".webp",".gif"]
+            video_ext = [".mp4", ".mkv", ".mov", ".webm"]
+            archive_ext = [".zip", ".rar", ".7z"]
+            file_ext = Path(file_name).suffix
+            if file_ext in img_ext:
+                icon = "image.png"
+            elif file_ext in video_ext:
+                icon = "video.png"
+            elif file_ext in archive_ext:
+                icon = "archive.png"
+            else:
+                icon = "file.png"
             bd_request = select(UserBase).where(UserBase.user_name ==username)
             bd_result = await session.execute(bd_request)
             user_uuid_fromDB = bd_result.scalars().first()
 
             chunk_amount = len(messageid_chunk_list)
-            new_file = FileBase(user_uuid=user_uuid_fromDB.uuid, file_name=file_name, id_chunk_list=messageid_chunk_list, chunk_amount=chunk_amount, chunk_size=1*1024*1024)
+            new_file = FileBase(user_uuid=user_uuid_fromDB.uuid, file_name=file_name, id_chunk_list=messageid_chunk_list, chunk_amount=chunk_amount, chunk_size=1*1024*1024, file_icon=icon)
             session.add(new_file)
 
 ### GET
