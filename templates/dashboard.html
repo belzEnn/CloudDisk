@@ -40,6 +40,7 @@
                 <table class="files-table">
                     <thead>
                         <tr>
+                            <th style="text-align: left;">Icon</th>
                             <th>File name</th>
                             <th style="text-align: right;">Action</th>
                         </tr>
@@ -47,6 +48,7 @@
                     <tbody>
                         {% for file in files %}
                         <tr>
+                            <td style="align-content: left;"><img src="{{ url_for('assets', path=file.file_icon) }}" alt="file.file_icon" width="20", height="20"></td>
                             <td>{{ file.file_name }}</td>
                             <td style="text-align: right;">
                                 <form action="/download" method="post" style="display: inline;">

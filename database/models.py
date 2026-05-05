@@ -14,6 +14,7 @@ class FileBase(Base):                  #its a table called storage
     chunk_amount:Mapped[int] = mapped_column(nullable=False)
     time:Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(),nullable=False)
     chunk_size:Mapped[int] = mapped_column(nullable=False)
+    file_icon: Mapped[str] = mapped_column(nullable=False)
 
 class UserBase(Base):
     __tablename__ = "users"
@@ -21,3 +22,4 @@ class UserBase(Base):
     user_name:Mapped[str] = mapped_column(nullable=False,unique=True)
     uuid:Mapped[str] = mapped_column(String(36),nullable=False)
     password_hash: Mapped[str] = mapped_column(String(128), nullable=False)
+
