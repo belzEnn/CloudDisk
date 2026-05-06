@@ -1,61 +1,90 @@
-<div class="login-card">
-    <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
-    <style>
-        body { display: flex; align-items: center; justify-content: center; height: 100vh; background-color: #f8f9fa; }
-        .login-card { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); width: 320px; text-align: center; }
-        .login-card h2 { margin-top: 0; color: #0984e3; font-weight: 700; margin-bottom: 30px; }
-        .form-group { margin-bottom: 20px; text-align: left; }
-        .form-group label { display: block; font-size: 0.85rem; color: #636e72; margin-bottom: 5px; font-weight: 600; }
-        .form-group input { width: 100%; padding: 10px; border: 1px solid #dfe6e9; border-radius: 8px; box-sizing: border-box; font-family: inherit; }
-        .form-group input:focus { outline: none; border-color: #0984e3; }
-        .btn-login { width: 100%; background: #0984e3; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; margin-top: 10px; }
-        .btn-login:hover { background: #74b9ff; }
-        .error-msg { color: #ff7675; font-size: 0.85rem; margin-bottom: 15px; font-weight: 600; }
-    </style>
-    <h2 id="form-title">Login to DDDrive</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DDDrive — Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+</head>
+<body class="auth-body" id="auth-body">
+
+  <button class="theme-btn auth-theme-btn" onclick="toggleTheme()" aria-label="Toggle theme" id="theme-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>
+  </button>
+
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">
+      </div>
+      <span class="auth-logo-text">DDDrive</span>
+    </div>
+
+    <h1 class="auth-title" id="form-title">Sign in to your account</h1>
+
     {% if error %}
-        <div class="error-msg">{{ error }}</div>
+    <div class="auth-error">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      {{ error }}
+    </div>
     {% endif %}
 
-    <form id="auth-form" action="/login" method="post">
-        <div class="form-group">
-            <label for="username">Username</label>
-            <input type="text" name="username" required>
-        </div>
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" name="password" required>
-        </div>
-        <button type="submit" class="btn-login" id="submit-btn">Log In</button>
+    <form id="auth-form" action="/login" method="post" class="auth-form">
+      <div class="field">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" placeholder="your_username" required autocomplete="username">
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn-primary btn-full" id="submit-btn">Log in</button>
     </form>
 
-    <div style="margin-top: 20px; font-size: 0.8rem;">
-        <a href="#" id="toggle-auth" style="color: #0984e3; text-decoration: none;">No account? Register here</a>
-    </div>
-</div>
+    <p class="auth-toggle">
+      <span id="toggle-text">Don't have an account?</span>
+      <a href="#" id="toggle-link">Register here</a>
+    </p>
+  </div>
 
 <script>
-    const form = document.getElementById('auth-form');
-    const title = document.getElementById('form-title');
-    const btn = document.getElementById('submit-btn');
-    const toggle = document.getElementById('toggle-auth');
+  const DARK_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`;
+  const LIGHT_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>`;
 
-    let isLogin = true;
+  let dark = localStorage.getItem('theme') === 'dark';
+  const body = document.getElementById('auth-body');
+  const btn  = document.getElementById('theme-btn');
 
-    toggle.onclick = (e) => {
-        e.preventDefault();
-        isLogin = !isLogin;
-        
-        if (isLogin) {
-            form.action = '/login';
-            title.innerText = 'Login to DDDrive';
-            btn.innerText = 'Log In';
-            toggle.innerText = 'No account? Register here';
-        } else {
-            form.action = '/register';
-            title.innerText = 'Create Account';
-            btn.innerText = 'Sign Up';
-            toggle.innerText = 'Already have an account? Login';
-        }
-    };
+  function applyTheme() {
+    body.setAttribute('data-theme', dark ? 'dark' : '');
+    btn.innerHTML = dark ? DARK_ICON : LIGHT_ICON;
+    localStorage.setItem('theme', dark ? 'dark' : 'light');
+  }
+
+  function toggleTheme() { dark = !dark; applyTheme(); }
+
+  applyTheme();
+
+  // --- форма login/register ---
+  const form = document.getElementById('auth-form');
+  const title = document.getElementById('form-title');
+  const sub   = document.getElementById('form-sub');
+  const mainBtn = document.getElementById('submit-btn');
+  const toggleLink = document.getElementById('toggle-link');
+  const toggleText = document.getElementById('toggle-text');
+  let isLogin = true;
+
+  toggleLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    isLogin = !isLogin;
+    form.action = isLogin ? '/login' : '/register';
+    title.textContent = isLogin ? 'Sign in to your account' : 'Create an account';
+    mainBtn.textContent = isLogin ? 'Log in' : 'Sign up';
+    toggleText.textContent = isLogin ? "Don't have an account?" : 'Already have an account?';
+    toggleLink.textContent = isLogin ? 'Register here' : 'Log in';
+  });
 </script>
+  
+</body>
+</html>
