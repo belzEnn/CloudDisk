@@ -34,6 +34,13 @@ async def get_user_by_name(username: str):
         result = await session.execute(select(UserBase).where(UserBase.user_name == username))
         return result.scalars().first()
 
+async def get_uuid_by_name(username: str) -> str | None:
+    async with Session() as session:
+        result = await session.execute(
+            select(UserBase.uuid).where(UserBase.user_name == username)
+        )
+        return result.scalar_one_or_none()
+
 def hash_password(password: str) -> str:
     salt = bcrypt.gensalt()
     hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
