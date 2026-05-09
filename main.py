@@ -1,24 +1,30 @@
 import os
 import asyncio
 import aiofiles
+import json
+
 from telethon import TelegramClient
 from dotenv import load_dotenv
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, Form, UploadFile, File, BackgroundTasks, HTTPException
-from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
 from core.SendFile import Send, Split
 from core.GetFile import Get, Merge
-from database.Database import create_db_and_tables, add_user_to_db, add_file_to_db, get_user_files, get_file_by_id, delete_file, get_user_by_name, verify_password
-
+from database.Database import (create_db_and_tables, add_user_to_db, add_file_to_db, 
+                               get_user_files, get_file_by_id, delete_file, get_user_by_name, 
+                               verify_password, get_uuid_by_name
+)
 load_dotenv()
 
 api_id = int(os.getenv('API_ID'))
 api_hash = os.getenv('API_HASH')
 session_name = 'test'
+
+upload_progress: dict = {}
 
 client = TelegramClient(session_name, api_id, api_hash)
 
@@ -55,7 +61,7 @@ async def register(request: Request, username: str = Form(...), password: str = 
     try:
         await add_user_to_db(username, password)
     except Exception as e:
-        print(f"Ошибка регистрации: {e}")
+        print(f"Error: {e}")
         return templates.TemplateResponse(
             request=request, 
             name="login.html", 
@@ -107,8 +113,11 @@ async def upload_file(request: Request, file: UploadFile = File(...)):
     username = request.cookies.get("session_username")
     if not username:
         raise HTTPException(status_code=401)
-
-    temp_path = f"temp_{file.filename}"
+    
+    uuid = get_uuid_by_name(username)
+    upload_progress[username] = {"pct": 0, "done": False, "error": False}
+    
+    temp_path = f"{uuid}_{file.filename}"
     async with aiofiles.open(temp_path, "wb") as buffer:
         await buffer.write(await file.read())
 
@@ -126,20 +135,46 @@ async def upload_file(request: Request, file: UploadFile = File(...)):
         chunks_size = 20 * MB
 
     chunks = await Split(temp_path, chunks_size)
-    tasks = [Send(client, "me", chunk) for chunk in chunks]
-    
-    messages = await asyncio.gather(*tasks)
-    currentid_chunk_list = [msg.id for msg in messages]
-    
-    for chunk in chunks: 
+    total  = len(chunks)
+
+    upload_progress[username]["pct"] = 5
+
+    sent = 0
+    for chunk in chunks:
+        msg = await Send(client, "me", chunk)
+        if not msg:
+            raise Exception("Send failed")
+        sent += 1
+        upload_progress[username]["pct"] = 5 + int((sent / total) * 90)
         if os.path.exists(chunk):
             os.remove(chunk)
 
-    await add_file_to_db(username, file.filename, currentid_chunk_list)
+    currentid_chunk_list = []
     os.remove(temp_path)
-    
-    return RedirectResponse(url="/dashboard", status_code=303)
 
+    await add_file_to_db(username, file.filename, currentid_chunk_list)
+    upload_progress[username] = {"pct": 100, "done": True, "error": False}
+
+    return {"ok": True} 
+
+@app.get("/upload/progress")
+async def upload_progress_stream(request: Request):
+    username = request.cookies.get("session_username")
+    if not username:
+        raise HTTPException(status_code=401)
+
+    async def event_stream():
+        while True:
+            if await request.is_disconnected():
+                break
+            state = upload_progress.get(username, {"pct": 0, "done": False, "error": False})
+            yield f"data: {json.dumps(state)}\n\n"
+            if state.get("done") or state.get("error"):
+                upload_progress.pop(username, None)
+                break
+            await asyncio.sleep(0.3)
+
+    return StreamingResponse(event_stream(), media_type="text/event-stream")
 
 @app.post("/download")
 async def download_file(file_id: int = Form(...)):

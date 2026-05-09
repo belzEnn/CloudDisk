@@ -1,4 +1,4 @@
-// Theme toggle
+// ── THEME ──────────────────────────────────────────────────────────────────
 const DARK_ICON  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`;
 const LIGHT_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>`;
 
@@ -6,22 +6,125 @@ let dark = document.documentElement.getAttribute('data-theme') === 'dark';
 const themeBtn = document.getElementById('theme-btn');
 
 function applyTheme() {
-  if (dark) {
-    document.documentElement.setAttribute('data-theme', 'dark');
-    localStorage.setItem('theme', 'dark');
-    if (themeBtn) themeBtn.innerHTML = DARK_ICON;
-  } else {
-    document.documentElement.setAttribute('data-theme', '');
-    localStorage.setItem('theme', 'light');
-    if (themeBtn) themeBtn.innerHTML = LIGHT_ICON;
-  }
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : '');
+  localStorage.setItem('theme', dark ? 'dark' : 'light');
+  if (themeBtn) themeBtn.innerHTML = dark ? DARK_ICON : LIGHT_ICON;
 }
-
 function toggleTheme() { dark = !dark; applyTheme(); }
-
 applyTheme();
 
-// Delete confirmation modal
+// ── UPLOAD PILL ────────────────────────────────────────────────────────────
+const fileInput = document.getElementById('file-input');
+const pill      = document.getElementById('upload-pill');
+const pillFill  = document.getElementById('pill-fill');
+const pillPct   = document.getElementById('pill-pct');
+const pillName  = document.getElementById('pill-name');
+
+const SVG_UPLOAD = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg>`;
+const SVG_SPIN   = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin .8s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
+const SVG_CHECK  = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+const SVG_ERROR  = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+
+function pillSetIcon(svg) {
+  document.getElementById('pill-trigger').innerHTML = svg;
+}
+
+function pillUploading(filename) {
+  pill.className = 'upload-pill active';
+  pillFill.className = 'pill-fill';
+  pillFill.style.width = '0%';
+  pillName.textContent = filename;
+  pillPct.textContent  = '0%';
+  pillSetIcon(SVG_SPIN);
+}
+
+function pillProgress(pct) {
+  pillFill.style.width = pct + '%';
+  pillPct.textContent  = pct + '%';
+}
+
+function pillProcessing() {
+  pillFill.classList.add('processing');
+  pillPct.textContent = 'Processing…';
+  pill.classList.add('processing');
+  pill.classList.remove('active');
+  pillSetIcon(SVG_SPIN);
+}
+
+function pillDone() {
+  pillFill.classList.remove('processing');
+  pillFill.style.width = '100%';
+  pill.className = 'upload-pill done';
+  pillName.textContent = 'Upload complete';
+  pillPct.textContent  = '✓';
+  pillSetIcon(SVG_CHECK);
+}
+
+function pillError() {
+  pillFill.classList.remove('processing');
+  pill.className = 'upload-pill error';
+  pillName.textContent = 'Upload failed';
+  pillPct.textContent  = '!';
+  pillSetIcon(SVG_ERROR);
+}
+
+function pillReset() {
+  pill.className = 'upload-pill';
+  pillFill.className = 'pill-fill';
+  pillFill.style.width = '0%';
+  pillName.textContent = '';
+  pillPct.textContent  = '';
+  pillSetIcon(SVG_UPLOAD);
+  fileInput.value = '';
+}
+
+function startUpload(file) {
+  pillUploading(file.name);
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  fetch('/upload', { method: 'POST', body: formData })
+    .catch(() => {
+      pillError();
+      setTimeout(pillReset, 3000);
+    });
+
+  setTimeout(() => {
+    const sse = new EventSource('/upload/progress');
+
+    sse.onmessage = (e) => {
+      const state = JSON.parse(e.data);
+      if (state.error) {
+        sse.close();
+        pillError();
+        setTimeout(pillReset, 3000);
+        return;
+      }
+      if (state.done) {
+        sse.close();
+        pillProgress(100);
+        pillDone();
+        setTimeout(() => location.reload(), 1000);
+        return;
+      }
+      pillProgress(state.pct);
+    };
+
+    sse.onerror = () => {
+      sse.close();
+      pillError();
+      setTimeout(pillReset, 3000);
+    };
+  }, 100);
+}
+
+// ── ЭТОГО НЕ БЫЛО — вот почему кнопка не работала ──────────────────────────
+fileInput.addEventListener('change', () => {
+  if (fileInput.files[0]) startUpload(fileInput.files[0]);
+});
+
+// ── DELETE MODAL ───────────────────────────────────────────────────────────
 const modal = document.getElementById('modal');
 let formToSubmit = null;
 
@@ -33,44 +136,26 @@ document.addEventListener('submit', (e) => {
   }
 });
 
-const closeModal = () => { 
-  modal.style.display = 'none'; 
-  formToSubmit = null; 
-};
-
+const closeModal = () => { modal.style.display = 'none'; formToSubmit = null; };
 document.getElementById('modal-cancel').onclick = closeModal;
-
-window.addEventListener('click', (e) => { 
-  if (e.target === modal) closeModal(); 
-});
+window.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
 
 document.getElementById('modal-confirm').onclick = async () => {
   if (!formToSubmit) return;
-  
-  const form = formToSubmit; 
-  closeModal(); 
-  
+  const form = formToSubmit;
+  closeModal();
   try {
-    const res = await fetch('/delete', { 
-      method: 'POST', 
-      body: new FormData(form) 
-    });
-    
-    if (res.ok) {
-      location.reload(); 
-    } else {
-      alert('Server error while deleting');
-    }
-  } catch (error) {
-    console.error("Fetch error:", error); 
+    const res = await fetch('/delete', { method: 'POST', body: new FormData(form) });
+    if (res.ok) location.reload();
+    else alert('Server error while deleting');
+  } catch (err) {
+    console.error(err);
     alert('Network error');
   }
 };
 
-// Drag & drop upload
+// ── DRAG & DROP ────────────────────────────────────────────────────────────
 const overlay = document.getElementById('drop-overlay');
-const fileInput = document.getElementById('file-input');
-const uploadForm = document.getElementById('upload-form');
 let dragCounter = 0;
 
 document.addEventListener('dragenter', (e) => { e.preventDefault(); dragCounter++; overlay.classList.add('active'); });
@@ -81,8 +166,5 @@ document.addEventListener('drop', (e) => {
   overlay.classList.remove('active');
   dragCounter = 0;
   const files = e.dataTransfer.files;
-  if (files.length > 0) {
-    fileInput.files = files;
-    uploadForm.submit();
-  }
+  if (files.length > 0) startUpload(files[0]);
 });

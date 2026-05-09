@@ -1,5 +1,5 @@
 import os
-import aiofiles  # Нужно доустановить
+import aiofiles
 import asyncio
 from database.models import FileBase
 #Send file func
